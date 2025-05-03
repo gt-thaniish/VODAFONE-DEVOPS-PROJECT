@@ -30,10 +30,18 @@ jobs:
 
       - name: Docker build & push
         run: |
+          # Build the Docker image from the flask-app directory
           docker build -t flask-app:latest ./flask-app
-          docker tag flask-app:latest 253284761052.dkr.ecr.us-east-1.amazonaws.com/flask-app:latest
-          aws ecr get-login-password | docker login --username AWS --password-stdin ${{ secrets.ECR_URL }}/flask-app
-          docker push ${{ secrets.ECR_URL }}/flask-app
+
+          # Tag the image with the full ECR repo URL
+          docker tag flask-app:latest ${{ secrets.ECR_URL }}:latest
+
+          # Login to ECR (only use the base URL without /flask-app)
+          aws ecr get-login-password | docker login --username AWS --password-stdin ${{ secrets.ECR_URL_BASE }}
+
+          # Push the image to ECR
+          docker push ${{ secrets.ECR_URL }}:latest
+
 
       - name: Update Helm and Push
         run: |
