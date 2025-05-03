@@ -31,14 +31,14 @@ jobs:
       - name: Docker build & push
         run: |
           docker build -t flask-app:latest ./flask-app
-          docker tag flask-app:latest <your_ecr_url>:latest
-          aws ecr get-login-password | docker login --username AWS --password-stdin <your_ecr_url>
-          docker push <your_ecr_url>:latest
+          docker tag flask-app:latest 253284761052.dkr.ecr.us-east-1.amazonaws.com/flask-app:latest
+          aws ecr get-login-password | docker login --username AWS --password-stdin ${{ secrets.ECR_URL }}/flask-app
+          docker push ${{ secrets.ECR_URL }}/flask-app
 
       - name: Update Helm and Push
         run: |
           sed -i "s/tag: .*/tag: latest/" helm-charts/flask-app/values.yaml
           git config user.name github-actions
           git config user.email github-actions@github.com
-          git commit -am "Update image tag"
+          git diff --quiet || git commit -am "Update image tag"
           git push
